@@ -88,6 +88,7 @@ python demo_webcam.py -n prn
 - YOLOv3-tiny-prn Cross-Hands
 	- [Configuration](https://github.com/cansik/yolo-hand-detection/releases/download/pretrained/cross-hands-tiny-prn.cfg)
 	- [Weights](https://github.com/cansik/yolo-hand-detection/releases/download/pretrained/cross-hands-tiny-prn.weights)
+**UPD!!!** Weights are also available on google drive: https://drive.google.com/drive/folders/1nbI9zIugRsq3V9_5b7qNNwmqrTFgP4Ze?usp=sharing
 
 If you are interested in the CMU Hand DB results, please check the [release](https://github.com/cansik/yolo-hand-detection/releases/tag/pretrained) section.
 
