@@ -2,15 +2,21 @@ import argparse
 import cv2
 import time
 from ximea import xiapi
-from config import camera_cfg
-
+from config import camera_cfg, calibration_cfg
+from results_postprocessing import make_measurement_results
 from yolo import YOLO
 
-
+def configure_camera(cam):
+    cam.open_device()
+    cam.set_imgdataformat(camera_cfg.CAMERA_PARAMS['img_format'])
+    cam.set_exposure(camera_cfg.CAMERA_PARAMS['exposure'])
+    cam.set_param("gain", camera_cfg.CAMERA_PARAMS['gain'])
+    cam.set_param("auto_wb", camera_cfg.CAMERA_PARAMS['auto_wb'])
+    cam.set_param("framerate", camera_cfg.CAMERA_PARAMS['framerate'])
 
 
 ap = argparse.ArgumentParser()
-ap.add_argument('-n', '--network', default="normal", help='Network Type: normal / tiny / prn')
+ap.add_argument('-n', '--network', default="tiny", help='Network Type: normal / tiny / prn')
 ap.add_argument('-d', '--device', default=0, help='Device to use')
 ap.add_argument('-s', '--size', default=256, help='Size for yolo')
 ap.add_argument('-c', '--confidence', default=0.2, help='Confidence for yolo')
@@ -35,21 +41,15 @@ cv2.namedWindow("preview")
 cam = xiapi.Camera(dev_id=0)
 img = xiapi.Image()
 try:
-    cam.open_device()
-
-    cam.set_imgdataformat(camera_cfg.CAMERA_PARAMS['img_format'])
-    cam.set_exposure(camera_cfg.CAMERA_PARAMS['exposure'])
-    cam.set_param("gain", camera_cfg.CAMERA_PARAMS['gain'])
-    cam.set_param("auto_wb", camera_cfg.CAMERA_PARAMS['auto_wb'])
-    cam.set_param("framerate", camera_cfg.CAMERA_PARAMS['framerate'])
-
+    configure_camera(cam)
     cam.start_acquisition()
 except Exception as e:
     print(f"Unable to launch camera! Error is: {e}. Aborting")
     exit()
 widths = []
 heights = []
-areas = []
+rotations = []
+
 while 1:
     cam.get_image(img)
     frame = img.get_image_data_numpy()[camera_cfg.CAMERA_PARAMS["offset_Y"]: camera_cfg.CAMERA_PARAMS["offset_Y"]+ camera_cfg.CAMERA_PARAMS["height"],
@@ -67,12 +67,17 @@ while 1:
         text = "%s (%s)" % (name, round(confidence, 2))
         cv2.putText(frame, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
                     0.5, color, 2)
-        dist  = "dist: %f" % (w*(-1.5454)+256)
-        cv2.putText(frame, dist,(x, y + 30), cv2.FONT_HERSHEY_SIMPLEX,
+        dist  = "dist: %f" % (w*(calibration_cfg["width_coef"]) + \
+        calibration_cfg["width_offset"])
+        rotation = "rot: %f" % (1.*w/h)
+        cv2.putText(frame, dist,(x, y - 30), cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5, color, 2)
+        cv2.putText(frame, rotation,(x, y - 17), cv2.FONT_HERSHEY_SIMPLEX,
                     0.5, color, 2)
         widths.append(w)
         heights.append(h)
-        areas.append(w * h)
+        #areas.append(w * h)
+        rotations.append(rotation)
 
     cv2.imshow("preview", frame)
 
@@ -83,31 +88,5 @@ while 1:
 cv2.destroyWindow("preview")
 cam.stop_acquisition()
 cam.close_device()
-import pandas as pd
 
-df = pd.DataFrame({"height":heights,
-                    "width":widths,
-                    "areas":areas}).to_excel("out_res.xls")
-
-import matplotlib.pyplot as plt
-import numpy as np
-
-plt.figure(figsize=(12,8))
-plt.grid()
-
-plt.plot(np.array(areas), label='areas')
-plt.legend()
-plt.savefig('res_area.png')
-
-plt.figure(figsize=(12,8))
-plt.grid()
-plt.plot(np.array(widths),label='widths')
-plt.plot(np.array(heights), label='heigths')
-plt.savefig('res_h_w.png')
-
-plt.figure(figsize=(12,8))
-plt.grid()
-plt.plot(np.array(widths)*(-1.54545)+256,label='dist')
-
-plt.savefig('res_dist.png')
-
+make_measurement_results(widths, heights)
