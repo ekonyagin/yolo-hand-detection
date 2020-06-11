@@ -41,7 +41,7 @@ def make_measurement_results(widths, heights, rotations, areas=None):
 
 	plt.figure(figsize=(12,8))
 	plt.grid()
-	plt.plot(widths*(calibration_cfg["width_coef"]) + \
-		calibration_cfg["width_offset"],label='dist')
+	plt.plot(widths*(calibration_cfg.CALIBRATIONS["width_coef"]) + \
+		calibration_cfg.CALIBRATIONS["width_offset"],label='dist')
 
 	plt.savefig('res_dist.png')

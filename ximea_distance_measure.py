@@ -67,8 +67,8 @@ while 1:
         text = "%s (%s)" % (name, round(confidence, 2))
         cv2.putText(frame, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
                     0.5, color, 2)
-        dist  = "dist: %f" % (w*(calibration_cfg["width_coef"]) + \
-        calibration_cfg["width_offset"])
+        dist  = "dist: %f" % (w*(calibration_cfg.CALIBRATIONS["width_coef"]) + \
+        calibration_cfg.CALIBRATIONS["width_offset"])
         rotation = "rot: %f" % (1.*w/h)
         cv2.putText(frame, dist,(x, y - 30), cv2.FONT_HERSHEY_SIMPLEX,
                     0.5, color, 2)
@@ -89,4 +89,4 @@ cv2.destroyWindow("preview")
 cam.stop_acquisition()
 cam.close_device()
 
-make_measurement_results(widths, heights)
+make_measurement_results(widths, heights, rotations)
