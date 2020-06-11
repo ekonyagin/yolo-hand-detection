@@ -1,11 +1,10 @@
 import argparse
 import cv2
-import time
-
-from ximea_processor import xi_camera_
 from config import camera_cfg, calibration_cfg
-from results_postprocessing import make_measurement_results
-from yolo import YOLO
+
+from src.ximea_processor import xi_camera_
+from src.results_postprocessing import make_measurement_results
+from src.yolo import YOLO
 
 
 if __name__ == "__main__":
@@ -33,7 +32,7 @@ if __name__ == "__main__":
     print("starting XIMEA...")
     cv2.namedWindow("preview")
 
-    cam = xi_camera_()
+    cam = xi_camera_(config=camera_cfg)
     cam.start()
     
     widths = []

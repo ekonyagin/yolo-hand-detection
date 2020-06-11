@@ -25,24 +25,24 @@ def make_measurement_results(widths, heights, rotations, areas=None):
 	plt.grid()
 	plt.plot(areas, label='areas')
 	plt.legend()
-	plt.savefig('res_area.png')
+	plt.savefig('results/res_area.png')
 
 	plt.figure(figsize=(12,8))
 	plt.grid()
 	plt.plot(rotations, label='rot')
 	plt.legend()
-	plt.savefig('res_rot.png')
+	plt.savefig('results/res_rot.png')
 
 	plt.figure(figsize=(12,8))
 	plt.grid()
 	plt.plot(widths,label='widths')
 	plt.plot(heights, label='heigths')
 	plt.legend()
-	plt.savefig('res_h_w.png')
+	plt.savefig('results/res_h_w.png')
 
 	plt.figure(figsize=(12,8))
 	plt.grid()
 	plt.plot(widths*(calibration_cfg.CALIBRATIONS["width_coef"]) + \
 		calibration_cfg.CALIBRATIONS["width_offset"],label='dist')
 	plt.legend()
-	plt.savefig('res_dist.png')
+	plt.savefig('results/res_dist.png')
